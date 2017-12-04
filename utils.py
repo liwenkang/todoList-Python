@@ -17,3 +17,11 @@ def log(*args, **kwargs):
     # 前面写要转换成的格式, 后面写参数
     dt = time.strftime(format, value)
     print(dt, *args, **kwargs)
+
+
+def log_time():
+    format = '%Y-%m-%d %H:%M:%S'
+    value = time.localtime(int(time.time()))
+    # 前面写要转换成的格式, 后面写参数
+    dt = time.strftime(format, value)
+    print(dt)

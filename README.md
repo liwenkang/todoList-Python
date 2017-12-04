@@ -12,7 +12,8 @@
 ├─data 
 │      Todo.txt             // 存放事件信息
 │      User.txt             // 存放用户信息
-│
+│	   Message.txt			// 存放用户留言
+│		
 ├─static
 │      doge.gif             // 在主页上放三张图,以表示尴尬
 │      doge1.jpg
@@ -40,7 +41,19 @@
 4. Python的基础
 
 #### 实现过程:
-0. 先把小工具准备好(自定义一个 log 函数,方便后续调试) √
-1. 实现一个 server √
-2. 实现 Models 正在...
+1. 先把小工具准备好(自定义一个 log 函数,方便后续调试) 实现 utils.py √
+2. 实现 server.py √
+3. 实现 models.py √
+4. 实现 routes.py √
+5. 实现 routes_todo.py √
+6. 实现 todo.py √ 
+7. 实现 templates 里的 html 文件 √
+8. 小调试
+
+#### 存在的问题:
+1. 用户注册后应该直接跳转到当前用户的 todo 页面
+2. 用户登录后应该直接跳转到当前用户的 todo 页面
+3. Message 功能改炸了
+
+
  

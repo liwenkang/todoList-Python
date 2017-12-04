@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "id": 1,
+    "username": "gua",
+    "password": "gua"
+  },
+  {
+    "id": 2,
+    "username": "liwenkang",
+    "password": "liwenkang"
+  },
+  {
+    "id": 3,
+    "username": "liwenkang",
+    "password": "liwenkang"
+  },
+  {
+    "id": 4,
+    "username": "liwenkang",
+    "password": "liwenkang"
+  },
+  {
+    "id": 5,
+    "username": "guagua",
+    "password": "guagua"
+  }
+]

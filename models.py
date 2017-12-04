@@ -170,7 +170,21 @@ class Model(object):
     # todo 在类中找到含有指定多个条件的 对象
     @classmethod
     def find_all(cls, **kwargs):
-        pass
+        """
+        用法如下，kwargs 是只有一个元素的 dict
+        u = User.find_by(username='gua')
+        """
+        log('kwargs, ', kwargs)
+        k, v = '', ''
+        for key, value in kwargs.items():
+            k, v = key, value
+        all = cls.all()
+        data = []
+        for m in all:
+            # getattr(m, k) 等价于 m.__dict__[k]
+            if v == m.__dict__[k]:
+                data.append(m)
+        return data
 
     # 重写了 __repr__ ,让 log 出来的信息更加可读
     @classmethod
@@ -198,7 +212,137 @@ class Model(object):
         s = '\n'.join(properties)
         return '<\nclassname:{}\n properties:{}>\n'.format(classname, s)
 
-    # 保存数据
+    # 保存数据( User 和 Message 俩个)
+    def save(self):
+        models = self.all()
+        first_index = 1
+        if self.__dict__.get('id') is None:
+            # 之前没有id这儿属性,说明在文件中没有存放这个数据,我就直接写入新的数据
+            if len(models) > 0:
+                # 不是第一个数据
+                self.id = models[-1].id + 1
+            else:
+                self.id = first_index
+            models.append(self)
+        else:
+            # 有id这个属性,说明是已经存在文件中的数据,那么我需要找到相应的数据并且替换
+            # 默认找不到 index = -1
+            index = -1
+            for i, m in enumerate(models):
+                if m.id == self.id:
+                    # 如果遍历得到的 id 等于 自己的 id
+                    index = i
+                    break
+            if index > -1:
+                # 说明 index 发生了变化,也就说明找到了,那么第 index 个的内容就被新的内容所替代,生成新的 models
+                models[index] = self
+
+            # 将新的 models 遍历后,根据名字,存入对应的路径文件中
+        l = [m.__dict__ for m in models]
+        path = self.db_path()
+        save(l, path)
+        log('l', l)
+
     # 删除数据
+    def remove(self):
+        models = self.all()
+        first_index = 1
+        if self.__dict__.get('id') is not None:
+            # id 属性存在
+            # 默认找不到 index = -1
+            index = -1
+            """
+            enumerate用法如下:
+            for i, m in enumerate(models):
+                log('i', i,'index')
+                log('m', m,'key')
+                log('models.get(m)', models.get(m),'value')
+            """
+            for i, m in enumerate(models):
+                if m.id == self.id:
+                    # 如果遍历得到的 id 等于 自己的 id,说明找到了
+                    index = i
+                    break
+            if index > -1:
+                # index 发生了变化,说明 index 被找到了
+                del models[index]
+        # 将新的 models 遍历后,根据名字,存入对应的路径文件中
+        l = [m.__dict__ for m in models]
+        path = self.db_path()
+        save(l, path)
 
 
+# 定义 User
+class User(Model):
+    # 用来保存用户的数据,有 3 个属性, id , username , password
+    def __init__(self, form):
+        # form 表示从外面给的 一个用户对象
+        self.id = form.get('id', None)
+        if self.id is not None:
+            self.id = int(self.id)
+        self.username = form.get('username', '')
+        self.password = form.get('password', '')
+
+    # 登陆检验函数
+    def validate_login(self):
+        # 先查询是否有当前用户
+        u = User.find_by(username=self.username)
+        # todo 问题:当用户输入了正确的用户名,但是密码错了,我该不该仅仅提示用户密码错误,还是提示两者之一有错误?
+        if u is None:
+            # 提醒用户用户名或者密码错误
+            return False
+        else:
+            if u.password == self.password:
+                return True
+            else:
+                return False
+        # 提醒用户用户名或者密码错误
+
+    # 注册检验函数
+    def validate_register(self):
+        if len(self.username) > 2 and len(self.password) > 2:
+            return True
+        else:
+            return False
+
+
+# 定义 Message
+class Message(Model):
+    # 用来保存用户的留言
+    def __init__(self, form):
+        self.author = form.get('author', '')
+        self.message = form.get('message', '')
+
+
+# 测试
+def test1():
+    # 测试 User 数据
+    form = dict(
+        username='gua',
+        password='gua',
+    )
+    u = User(form)
+    u.save()
+
+    # 测试 Message 数据
+    form = dict(
+        author='gua',
+        message='gua',
+    )
+    m = Message(form)
+    m.save()
+
+
+def test2():
+    # 测试 Message 数据
+    form = dict(
+        author='gua',
+        message='gua',
+    )
+    m = Message(form)
+    m.save()
+
+
+if __name__ == '__main__':
+    test1()
+    test2()

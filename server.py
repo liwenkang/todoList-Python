@@ -81,9 +81,9 @@ class Request(object):
         # 清空 headers
         self.headers = {}
         # 最终的结果希望是键值对
-        kvs = header
-        for kv in kvs:
-            k, v = kv.split(': ', 1)
+        lines = header
+        for line in lines:
+            k, v = line.split(': ', 1)
             self.headers[k] = v
         # 清空 self.cookies
         self.cookies = {}
@@ -279,7 +279,7 @@ def run(host='', port=3000):
             path = r.split()[1]
             # 设置 request 的method
             request.method = r.split()[0]
-            request.add_headers(r.split('\r\r\n\r\n', 1)[0].split('\r\n')[1:])
+            request.add_headers(r.split('\r\n\r\n', 1)[0].split('\r\n')[1:])
             request.body = r.split('\r\n\r\n', 1)[1]
             response = response_for_path(path)
             connection.sendall(response)
