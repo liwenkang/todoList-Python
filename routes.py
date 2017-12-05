@@ -3,6 +3,9 @@ from utils import log
 # 引入生成随机数的 random
 import random
 
+# 引入 save 函数
+from models import save
+
 # 引入 Message 从 models 里面
 from models import Message
 # 引入 User 从 models 里面
@@ -180,26 +183,32 @@ def route_register(request):
 def route_message(request):
     username = current_user(request)
     # 如果此时用户未登录,重定向到 '/'
-    # todo 加入有一个人注册了用户名就叫 [游客] 那我就疯了
+    # todo 加入有一个人注册了用户名就叫 游客 那我就疯了
     if username == '游客':
         log('这是游客')
         return redirect('/')
-
-
-    log('这不是游客')
-    # 判断 POST 请求
-    if request.method == 'POST':
-        # 保存用户的留言到 message_list
-        form = request.form()
-        msg = Message(form)
-        message_list.append(msg)
-
-    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
-    body = template('html_basic.html')
-    msgs = '<br>'.join([str(m) for m in message_list])
-    body = body.replace('{{message}}', msgs)
-    r = header + '\r\n' + body
-    return r.encode(encoding='utf-8')
+    else:
+        # 判断 POST 请求
+        body = template('html_basic.html')
+        if request.method == 'POST':
+            log('request.method.POST', request)
+            # 保存用户的留言到 message_list
+            form = request.form()
+            msg = Message(form)
+            message_list.append(msg)
+            msgs = '<br>'.join([str(m) for m in message_list])
+            save(msgs, 'data/Message.txt')
+            # 直接存储字符串到 Message.txt 文件
+        elif request.method == 'GET':
+            # 定向到了新的 url
+            # http://localhost:3000/messages?message=gua
+            msgs = '<br>{}'.format(request.query.get('message'), '')
+            # 直接存储字符串到 Message.txt 文件
+            save(msgs, 'data/Message.txt')
+        body = body.replace('{{messages}}', msgs)
+        header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
+        r = header + '\r\n' + body
+        return r.encode(encoding='utf-8')
 
 
 # 路由字典,实现主页显示,用户注册,登陆,留言

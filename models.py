@@ -310,8 +310,17 @@ class User(Model):
 class Message(Model):
     # 用来保存用户的留言
     def __init__(self, form):
-        self.author = form.get('author', '')
         self.message = form.get('message', '')
+        self.author = form.get('author', '')
+        self.id = form.get('id', -1)
+
+    # 重写了 __repr__ ,让 log 出来的信息更加可读
+    def __repr__(self):
+        classname = self.__class__.__name__
+        # todo 列表推倒有点没搞懂
+        properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
+        s = '\n'.join(properties)
+        return '<\nclassname:{}\n {}>\n'.format(classname, s)
 
 
 # 测试

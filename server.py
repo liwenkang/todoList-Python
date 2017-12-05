@@ -27,7 +27,16 @@ class Request(object):
         http://blog.csdn.net/lenovouser/article/details/52909842
         http://blog.csdn.net/u014612859/article/details/24381329
         GET一般用于获取 / 查询资源信息，而POST一般用于更新资源信息
-        请求方法为 GET 从指定的服务器中获取数据,查询字符串（键值对）被附加在URL地址后面一起发送到服务器：
+        请求方法为 GET 从指定的服务器中获取数据,查询字符串（键值对）被附加在URL地址后面一起发送到服务器
+        header 区别如下所示
+            method: (POST)
+            query: ({})
+            body: (message=gua&author=gua)
+
+
+            method: (GET)
+            query: ({'message': 'guagua'})
+            body: ()
         """
         self.method = 'GET'
         self.path = ''
@@ -35,6 +44,30 @@ class Request(object):
         self.body = ''
         self.headers = {}
         self.cookies = {}
+
+    def __repr__(self):
+        """
+        __str__ 和 __repr__ 方法
+
+        __repr__ 是一个魔法方法
+        简单来说, 它的作用是得到类的 字符串表达 形式
+
+        class A(object):
+            def __str__(self):
+                return "this is A class"
+
+            def __repr__(self):
+                return "this is repr func"
+
+        a = A()
+        print(a) 调用的是 a 的 __str__ 方法,给用户看的
+        如果在python解释器里直接敲a后回车，调用的是a.__repr__()方法,给机器看的
+        """
+        classname = self.__class__.__name__
+        # todo 列表推倒有点没搞懂
+        properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
+        s = '\n'.join(properties)
+        return '<\nclassname:{}\n properties:{}>\n'.format(classname, s)
 
     # 把从 self.headers 得到的 Cookie 格式化为字典,加入到 self.cookies 里面
     def add_cookies(self):
