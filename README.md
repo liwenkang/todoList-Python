@@ -1,11 +1,17 @@
 ### 你好,这是一个 todo 小应用(基于Python)
 
+#### 使用方法:
+1. 运行 server.py 后
+2. 打开浏览器,输入 localhost:3000
+
 #### 基础功能：
 1. 显示所有todo
 2. 增加todo 
 3. 更新todo 
 4. 删除todo 
 5. 用户登陆
+6. 用户注册
+7. 用户留言
 
 #### 包含的文件如下:
 <pre>
@@ -16,22 +22,22 @@
 │		
 ├─static
 │      doge.gif             // 在主页上放三张图,以表示尴尬
-│      doge1.jpg
+│      doge1.jpg			
 │      doge2.gif
 │
 ├─templates
-│      html_basic.html      
+│      message.html      	// 显示 Message 页面	
 │      index.html           // 显示主页
 │      login.html           // 显示用户登陆界面
 │      register.html        // 显示用户注册界面
 │      todo_edit.html       // 显示编辑 todo 的界面
 │      todo_index.html      // 显示所有 todo 的页面
-├─models.py
-├─routes.py
-├─routes_todo.py            // 包含了应用的所有路由函数 
-├─server.py         
+├─models.py					// 主页 Model
+├─routes.py					// 主页路由函数
+├─routes_todo.py            // todo 路由函数 
+├─server.py         		// 建立一个 server.py
 ├─todo.py                   // 包含了 Todo Model, 用于处理数据
-└─utils.py
+└─utils.py					// 自定义的工具函数
 </pre>
 
 #### 主要涉及的知识点:
@@ -41,7 +47,7 @@
 4. Python的基础
 
 #### 实现过程:
-1. 先把小工具准备好(自定义一个 log 函数,方便后续调试) 实现 utils.py √
+1. 实现 utils.py √
 2. 实现 server.py √
 3. 实现 models.py √
 4. 实现 routes.py √
