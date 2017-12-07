@@ -1,5 +1,5 @@
 from utils import log
-from utils import log_time
+
 from models import Model
 
 

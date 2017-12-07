@@ -1,18 +1,19 @@
 # 引入 log 函数
 from utils import log
+
+from utils import current_time
+
 # 引入生成随机数的 random
 import random
 
 # 引入 save 函数
 from models import save
+from models import load
 
 # 引入 Message 从 models 里面
 from models import Message
 # 引入 User 从 models 里面
 from models import User
-
-# 保存 messages
-message_list = []
 
 # session 可以在服务器端实现用户账户过期功能
 # 可以定时让 cookie 失效
@@ -144,7 +145,7 @@ def route_login(request):
             headers['Set-Cookie'] = 'user={}'.format(session_id)
             # 真实的 username 存在 session[session_id] 里
             session[session_id] = u.username
-            result = '登陆成功 <a href="/todo">进入 todo 页面</a> <a href="/messages">进入 Message 页面</a>'
+            result = '登陆成功 <p><a href="/todo">进入 todo 页面</a></p><p><a href="/messages">进入 Message 页面</a></p>'
         else:
             result = '用户名或者密码错误'
     else:
@@ -160,55 +161,66 @@ def route_login(request):
 # 加载注册页面(将 header + register.html 页面编码后返回)
 def route_register(request):
     header = 'HTTP/1.1 210 OK\r\nContent-Type: text/html\r\n'
+    body = template('register.html')
     # 验证 POST 请求
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
-        if u.validate_register():
+        log('u.validate_register()',u.validate_register())
+        if u.validate_register() == '该用户名已存在':
+            result = '注册失败: 该用户名已存在'
+            body = body.replace('{{result}}', result)
+        elif u.validate_register() == True:
             u.save()
             result = '注册成功: 您的账号为 {}'.format(u.username)
             # result = '注册成功<br> <pre>{} {}</pre>'.format(User.all())
+            body = body.replace('{{result}}',
+                                result + '<p><a href="/todo">进入 TODO 页面</a></p><p><a href="/messages">进入 Message 页面</a></p>')
         else:
-            result = '注册失败: 用户名或者密码长度必须大于2'
-    # 不是 POST 请求
+            result = '注册失败: 用户名和密码均必须以字母开头,且只能包含英文字符,数字和下划线,长度在6--18之间'
+            body = body.replace('{{result}}', result)
     else:
+        # 打开网页时自动的 GET 请求
         result = ''
-    body = template('register.html')
-    body = body.replace('{{result}}', result)
+        body = body.replace('{{result}}', result)
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
 
 
-# 对于已登录的用户加载留言页面(将 header + html_basic.html 页面编码后返回)
+# 对于已登录的用户加载留言页面(将 header + message.html 页面编码后返回)
 def route_message(request):
     username = current_user(request)
     # 如果此时用户未登录,重定向到 '/'
-    # todo 加入有一个人注册了用户名就叫 游客 那我就疯了
     if username == '游客':
-        log('这是游客')
-        return redirect('/')
-    else:
-        # 判断 POST 请求
-        body = template('html_basic.html')
-        if request.method == 'POST':
-            log('request.method.POST', request)
-            # 保存用户的留言到 message_list
-            form = request.form()
-            msg = Message(form)
-            message_list.append(msg)
-            msgs = '<br>'.join([str(m) for m in message_list])
-            save(msgs, 'data/Message.txt')
-            # 直接存储字符串到 Message.txt 文件
-        elif request.method == 'GET':
-            # 定向到了新的 url
-            # http://localhost:3000/messages?message=gua
-            msgs = '<br>{}'.format(request.query.get('message'), '')
-            # 直接存储字符串到 Message.txt 文件
-            save(msgs, 'data/Message.txt')
+        return redirect('/login')
+    # 判断 POST 请求
+    body = template('message.html')
+    if request.method == 'POST':
+        # 先加载原有数据
+        form = request.form()
+        t = Message.new(form)
+        # 加个时间
+        t.time = current_time()
+        item = t.saveMessage()
+        save(item, 'data/Message.txt')
+        # 将 list 转换成 str
+        msgs = '<br>'.join([str(m) for m in item])
         body = body.replace('{{messages}}', msgs)
-        header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
-        r = header + '\r\n' + body
-        return r.encode(encoding='utf-8')
+    elif request.method == 'GET':
+        # 也就是说,当我第一次访问 http://localhost:3000/messages 时,会先发送 GET 请求
+        # 定向到了新的 url
+        # http://localhost:3000/messages?message=gua
+        if any(request.query) == False:
+            # 说明是进入网页的时候提交的 GET 请求
+            # 提取出现有的 Message.
+            path = 'data/Message.txt'
+            data = load(path)
+            # 将 list 转换成 str
+            data = '<br>'.join([str(m) for m in data])
+            body = body.replace('{{messages}}', data)
+    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
+    r = header + '\r\n' + body
+    return r.encode(encoding='utf-8')
 
 
 # 路由字典,实现主页显示,用户注册,登陆,留言

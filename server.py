@@ -302,8 +302,8 @@ def run(host='', port=3000):
             s.listen(3)
             # 接收
             connection, address = s.accept()
-            # 读取, todo 注意这里需要改为无限循环,从而获取全部的数据
-            r = connection.recv(1000)
+            # 读取文件, 注意这里需要改为无限循环,从而获取全部的数据
+            r = connection.recv(10000)
             # 解码为字符串
             r = r.decode('utf-8')
             # chrome 浏览器偶尔会发送空请求导致 split 后得到的 path 为空,所以预先判断一下防止程序崩溃

@@ -4,6 +4,9 @@ from utils import log
 # 引入 json ,用于将数据转换为 JSON 格式再读取和存储
 import json
 
+# 引入正则表达式模块
+import re
+
 
 # 保存数据
 def save(data, path):
@@ -167,14 +170,13 @@ class Model(object):
                 return m
         return None
 
-    # todo 在类中找到含有指定多个条件的 对象
+    # 在类中找到含有指定多个条件的 对象
     @classmethod
     def find_all(cls, **kwargs):
         """
         用法如下，kwargs 是只有一个元素的 dict
         u = User.find_by(username='gua')
         """
-        log('kwargs, ', kwargs)
         k, v = '', ''
         for key, value in kwargs.items():
             k, v = key, value
@@ -212,7 +214,7 @@ class Model(object):
         s = '\n'.join(properties)
         return '<\nclassname:{}\n properties:{}>\n'.format(classname, s)
 
-    # 保存数据( User 和 Message 俩个)
+    # 保存数据( User)
     def save(self):
         models = self.all()
         first_index = 1
@@ -237,11 +239,39 @@ class Model(object):
                 # 说明 index 发生了变化,也就说明找到了,那么第 index 个的内容就被新的内容所替代,生成新的 models
                 models[index] = self
 
-            # 将新的 models 遍历后,根据名字,存入对应的路径文件中
+                # 将新的 models 遍历后,根据名字,存入对应的路径文件中
         l = [m.__dict__ for m in models]
         path = self.db_path()
         save(l, path)
         log('l', l)
+
+    def saveMessage(self):
+        models = self.all()
+        first_index = 1
+        if self.__dict__.get('message_id') is None:
+            # 之前没有id这儿属性,说明在文件中没有存放这个数据,我就直接写入新的数据
+            if len(models) > 0:
+                # 不是第一个数据
+                self.message_id = models[-1].message_id + 1
+            else:
+                self.message_id = first_index
+            models.append(self)
+        else:
+            # 有id这个属性,说明是已经存在文件中的数据,那么我需要找到相应的数据并且替换
+            # 默认找不到 index = -1
+            index = -1
+            for i, m in enumerate(models):
+                if m.message_id == self.message_id:
+                    # 如果遍历得到的 id 等于 自己的 id
+                    index = i
+                    break
+            if index > -1:
+                # 说明 index 发生了变化,也就说明找到了,那么第 index 个的内容就被新的内容所替代,生成新的 models
+                models[index] = self
+
+                # 将新的 models 遍历后,根据名字,存入对应的路径文件中
+        l = [m.__dict__ for m in models]
+        return l
 
     # 删除数据
     def remove(self):
@@ -287,7 +317,6 @@ class User(Model):
     def validate_login(self):
         # 先查询是否有当前用户
         u = User.find_by(username=self.username)
-        # todo 问题:当用户输入了正确的用户名,但是密码错了,我该不该仅仅提示用户密码错误,还是提示两者之一有错误?
         if u is None:
             # 提醒用户用户名或者密码错误
             return False
@@ -296,11 +325,18 @@ class User(Model):
                 return True
             else:
                 return False
-        # 提醒用户用户名或者密码错误
+                # 提醒用户用户名或者密码错误
 
     # 注册检验函数
     def validate_register(self):
-        if len(self.username) > 2 and len(self.password) > 2:
+        # 以字母开头，长度在6~18之间，只能包含字符、数字和下划线
+        u = User.find_by(username=self.username)
+        if u is not None:
+            return '该用户名已存在'
+        pattern = re.compile(r'^[a-zA-Z]\w{5,17}$')
+        nameMatch = pattern.search(self.username)
+        passwordMatch = pattern.search(self.password)
+        if nameMatch and passwordMatch:
             return True
         else:
             return False
@@ -310,17 +346,19 @@ class User(Model):
 class Message(Model):
     # 用来保存用户的留言
     def __init__(self, form):
-        self.message = form.get('message', '')
-        self.author = form.get('author', '')
-        self.id = form.get('id', -1)
+        self.message = form.get('message')
+        self.author = form.get('author')
+        self.time = form.get('time')
+        self.message_id = form.get('message_id')
 
     # 重写了 __repr__ ,让 log 出来的信息更加可读
     def __repr__(self):
         classname = self.__class__.__name__
+        time = self.time
         # todo 列表推倒有点没搞懂
         properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
         s = '\n'.join(properties)
-        return '<\nclassname:{}\n {}>\n'.format(classname, s)
+        return '<\nclassname:{}\n time:{} \n {}>\n'.format(classname, time, s)
 
 
 # 测试

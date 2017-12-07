@@ -5,26 +5,25 @@
     <title>例子 1</title>
 </head>
 <body>
-很好普通版
-<h1>很好 h1 版</h1>
-<h2>很好 h2 版</h2>
-<h3>很好 h3 版</h3>
+<h1>留言板</h1>
 <!-- form 是用来给服务器传递数据的 tag -->
 <!-- action 属性是 path -->
 <!-- method 属性是 HTTP方法 一般是 get 或者 post -->
-<!-- get post 的区别上课会讲 -->
 <form action="/messages" method="post">
     <!-- textarea 是一个文本域 -->
-    <!-- name rows cols 都是属性, 用处上课讲 -->
-    <textarea name="message" rows="8" cols="40"></textarea>
+    <!-- name rows cols 都是属性-->
+    <p>用戶名</p>
     <textarea name="author" rows="8" cols="40"></textarea>
+    <p>评论内容</p>
+    <textarea name="message" rows="8" cols="40"></textarea>
     <!-- button type=submit 才可以提交表单 -->
     <button type="submit">POST 提交</button>
 </form>
-<form action="/messages" method="get">
-    <textarea name="message" rows="8" cols="40"></textarea>
-    <button type="submit">GET 提交</button>
-</form>
+<!--<form action="/messages" method="get">-->
+    <!--<p>评论内容</p>-->
+    <!--<textarea name="message" rows="8" cols="40"></textarea>-->
+    <!--<button type="submit">GET 提交</button>-->
+<!--</form>-->
 {{messages}}
 </body>
 </html>
