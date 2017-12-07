@@ -18,7 +18,7 @@
 ├─data 
 │      Todo.txt             // 存放事件信息
 │      User.txt             // 存放用户信息
-│	   Message.txt			// 存放用户留言
+│      Message.txt          // 存放用户留言
 │		
 ├─static
 │      doge.gif             // 在主页上放三张图,以表示尴尬
@@ -26,18 +26,19 @@
 │      doge2.gif
 │
 ├─templates
-│      message.html      	// 显示 Message 页面	
+│      message.html         // 显示 Message 页面	
 │      index.html           // 显示主页
 │      login.html           // 显示用户登陆界面
 │      register.html        // 显示用户注册界面
 │      todo_edit.html       // 显示编辑 todo 的界面
 │      todo_index.html      // 显示所有 todo 的页面
-├─models.py					// 主页 Model
-├─routes.py					// 主页路由函数
+│
+├─models.py                 // 主页 Model
+├─routes.py                 // 主页路由函数
 ├─routes_todo.py            // todo 路由函数 
-├─server.py         		// 建立一个 server.py
+├─server.py                 // 建立一个 server.py
 ├─todo.py                   // 包含了 Todo Model, 用于处理数据
-└─utils.py					// 自定义的工具函数
+└─utils.py                  // 自定义的工具函数
 </pre>
 
 #### 主要涉及的知识点:
