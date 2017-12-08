@@ -1,5 +1,7 @@
 from utils import log
 
+import time
+
 from models import Model
 
 
@@ -12,3 +14,7 @@ class Todo(Model):
         self.title = form.get('title', '')
         # user_id 表明了代办事项的拥有者
         self.user_id = form.get('user_id', '')
+        # 新增时间
+        self.created_time = form.get('created_time', '出错了')
+        # 刷新修改时间
+        self.updated_time = form.get('updated_time', '未作修改')

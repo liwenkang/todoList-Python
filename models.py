@@ -243,7 +243,6 @@ class Model(object):
         l = [m.__dict__ for m in models]
         path = self.db_path()
         save(l, path)
-        log('l', l)
 
     def saveMessage(self):
         models = self.all()
@@ -312,6 +311,9 @@ class User(Model):
             self.id = int(self.id)
         self.username = form.get('username', '')
         self.password = form.get('password', '')
+        self.role = form.get('role', 10)
+        if self.role is not None:
+            self.role = int(self.role)
 
     # 登陆检验函数
     def validate_login(self):
@@ -319,11 +321,14 @@ class User(Model):
         u = User.find_by(username=self.username)
         if u is None:
             # 提醒用户用户名或者密码错误
+            log('validate_login 提醒用户用户名或者密码错误')
             return False
         else:
             if u.password == self.password:
+                log('validate_login  ok')
                 return True
             else:
+                log('validate_login  提醒用户用户名或者密码错误')
                 return False
                 # 提醒用户用户名或者密码错误
 

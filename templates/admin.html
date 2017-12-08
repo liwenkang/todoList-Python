@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--6, 在 /admin/users 页面中新增一个表单-->
+<!--表单包括 id password 两个 input-->
+<!--管理员可以在这个表单中输入 id 和 新密码 来修改相应用户的密码-->
+<!--这个表单发送 POST 请求到 /admin/user/update-->
+<!--所以你要增加一个新的路由函数实现更新用户密码的功能-->
+<h1>管理员界面</h1>
+<form action="/admin/user/update" method="post">
+    <input type="text" name="id" placeholder="请输入 id ">
+    <input type="text" name="password" placeholder="请输入密码">
+    <button type="submit">提交修改</button>
+</form>
+<p>{{result}}</p>
+</body>
+</html>

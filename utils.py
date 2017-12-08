@@ -20,7 +20,7 @@ def log(*args, **kwargs):
 
 
 def current_time():
-    format = '%Y-%m-%d %H:%M:%S'
+    format = '%m/%d %H:%M'
     value = time.localtime(int(time.time()))
     # 前面写要转换成的格式, 后面写参数
     dt = time.strftime(format, value)

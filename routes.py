@@ -1,3 +1,6 @@
+# routes.py
+
+
 # 引入 log 函数
 from utils import log
 
@@ -39,6 +42,28 @@ def current_user(request):
     session_id = request.cookies.get('user', '')
     username = session.get(session_id, '游客')
     return username
+
+
+# 根据 cookie 里是否有 id 信息,返回当前用户的 id
+def current_id(request):
+    session_id = request.cookies.get('user', '')
+    uname = session.get(session_id, '游客')
+    u = User.find_by(username=uname)
+    if u is not None:
+        return u.id
+    else:
+        return None
+
+
+# 根据 cookie 里是否有 role 信息,返回当前用户的 role
+def current_role(request):
+    session_id = request.cookies.get('user', '')
+    uname = session.get(session_id, '游客')
+    u = User.find_by(username=uname)
+    if u is not None:
+        return u.role
+    else:
+        return None
 
 
 # 根据名字读取 templates 文件夹里的网页文件并返回
@@ -158,6 +183,25 @@ def route_login(request):
     return r.encode(encoding='utf-8')
 
 
+# 加载一个管理页面(这个页面显示了所有的用户 包括 id username password)
+def route_admin(request):
+    # 只允许 role 为 1 的用户组访问
+    if current_role(request) == 1:
+        data = load('data/User.txt')
+        # list 转换为 str
+        item = '<br>'.join([str(m) for m in data])
+        headers = {
+            'Content-Type': 'text/html'
+        }
+        body = template('admin.html')
+        body = body.replace('{{result}}', item)
+        header = response_with_headers(headers)
+        r = header + '\r\n' + body
+        return r.encode(encoding='utf-8')
+    else:
+        return redirect('/login')
+
+
 # 加载注册页面(将 header + register.html 页面编码后返回)
 def route_register(request):
     header = 'HTTP/1.1 210 OK\r\nContent-Type: text/html\r\n'
@@ -166,7 +210,6 @@ def route_register(request):
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
-        log('u.validate_register()',u.validate_register())
         if u.validate_register() == '该用户名已存在':
             result = '注册失败: 该用户名已存在'
             body = body.replace('{{result}}', result)
@@ -223,10 +266,24 @@ def route_message(request):
     return r.encode(encoding='utf-8')
 
 
+# 系统管理员根据 id 修改用户的密码
+def route_update(request):
+    form = request.form()
+    if request.method == 'POST':
+        oldid = form.get('id')
+        new_password = form.get('password')
+        u = User.find_by(id=int(oldid))
+        u.password = new_password
+        u.save()
+        return redirect('/admin/users')
+
+
 # 路由字典,实现主页显示,用户注册,登陆,留言
 route_dict = {
     '/': route_index,
     '/login': route_login,
     '/register': route_register,
     '/messages': route_message,
+    '/admin/users': route_admin,
+    '/admin/user/update': route_update
 }

@@ -1,5 +1,6 @@
 # 引入 log 函数
 from utils import log
+from utils import current_time
 
 # 引入 Todo
 from todo import Todo
@@ -52,7 +53,8 @@ def index(request):
     for t in todo_list:
         edit_link = '<a href="/todo/edit?id={}">编辑</a>'.format(t.id)
         delete_link = '<a href="/todo/delete?id={}">删除</a>'.format(t.id)
-        s = '<h3>{} : {} {} {}</h3>'.format(t.id, t.title, edit_link, delete_link)
+        s = '<h3>{} : {} {} {} 创建时间:{} 最终修改时间:{}</h3>'.format(t.id, t.title, edit_link, delete_link, t.created_time,
+                                                              t.updated_time)
         todos.append(s)
     todo_html = ''.join(todos)
 
@@ -98,6 +100,7 @@ def add(request):
         form = request.form()
         t = Todo.new(form)
         t.user_id = u.id
+        t.created_time = current_time()
         t.save()
         # 我们看到页面刷新的过程:
         '''
@@ -140,6 +143,7 @@ def update(request):
         todo_id = int(str(form.get('id', -1)))
         t = Todo.find_by(id=todo_id)
         t.title = form.get('title', t.title)
+        t.updated_time = current_time()
         t.save()
     return redirect('/todo')
 
