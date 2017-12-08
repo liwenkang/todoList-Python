@@ -27,7 +27,8 @@
 #### 包含的文件如下:
 <pre>
 ├─data
-│      Todo.txt             // 存放事件信息 │      User.txt             // 存放用户信息
+│      Todo.txt             // 存放事件信息 
+│      User.txt             // 存放用户信息
 │      Message.txt          // 存放用户留言
 │
 ├─static
@@ -41,11 +42,15 @@
 │      index.html           // 显示主页
 │      login.html           // 显示用户登陆界面
 │      register.html        // 显示用户注册界面
-│      todo_edit.html       // 显示编辑 todo 的界面 │      todo_index.html      // 显示所有 todo 的页面 │
+│      todo_edit.html       // 显示编辑 todo 的界面 
+│      todo_index.html      // 显示所有 todo 的页面 
+│
 ├─models.py                 // 主页 Model
 ├─routes.py                 // 主页路由函数
-├─routes_todo.py            // todo 路由函数 ├─server.py                 // 建立一个 server.py
-├─todo.py                   // 包含了 Todo Model, 用于处理数据 └─utils.py                  // 自定义的工具函数
+├─routes_todo.py            // todo 路由函数 
+├─server.py                 // 建立一个 server.py
+├─todo.py                   // 包含了 Todo Model, 用于处理数据 
+└─utils.py                  // 自定义的工具函数
 </pre>
 
 #### 主要涉及的知识点:
@@ -60,7 +65,8 @@
 3. 实现 models.py √
 4. 实现 routes.py √
 5. 实现 routes_todo.py √
-6. 实现 todo.py √ 7. 实现 templates 里的 html 文件 √
+6. 实现 todo.py √ 
+7. 实现 templates 里的 html 文件 √
 8. 小调试 √
 
 #### 存在的问题:
