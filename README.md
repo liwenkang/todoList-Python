@@ -23,11 +23,13 @@
 7. 用户留言
 8. 管理员界面,对于所有用户的 id ,用户名,密码查看
 9. 管理员根据 id 修改不同用户的密码
+10. 利用 jinja2 模版框架,生成 html
 
 #### 包含的文件如下:
 <pre>
 ├─data
-│      Todo.txt             // 存放事件信息 │      User.txt             // 存放用户信息
+│      Todo.txt             // 存放事件信息
+│      User.txt             // 存放用户信息
 │      Message.txt          // 存放用户留言
 │
 ├─static
@@ -41,18 +43,25 @@
 │      index.html           // 显示主页
 │      login.html           // 显示用户登陆界面
 │      register.html        // 显示用户注册界面
-│      todo_edit.html       // 显示编辑 todo 的界面 │      todo_index.html      // 显示所有 todo 的页面 │
+│      todo_edit.html       // 显示编辑 todo 的界面
+│      todo_index.html      // 显示所有 todo 的页面
+│
+├─log.txt                   // 记录调试日志
 ├─models.py                 // 主页 Model
 ├─routes.py                 // 主页路由函数
-├─routes_todo.py            // todo 路由函数 ├─server.py                 // 建立一个 server.py
-├─todo.py                   // 包含了 Todo Model, 用于处理数据 └─utils.py                  // 自定义的工具函数
+├─routes_todo.py            // todo 路由函数
+├─server.py                 // 建立一个 server.py
+├─todo.py                   // 包含了 Todo Model, 用于处理数据
+├─utils.py                  // 自定义的工具函数
+└─summarize.md				// 知识点总结
 </pre>
 
 #### 主要涉及的知识点:
 1. 请求数据和发送数据(具体到各阶段的原始报文信息)
 2. 路由的实现
-3. 利用302状态码实现重定向
-4. Python的基础
+3. 利用 302 状态码实现重定向
+4. Python 的基础
+5. POST 和 GET 的区别
 
 #### 实现过程:
 1. 实现 utils.py √
@@ -60,11 +69,12 @@
 3. 实现 models.py √
 4. 实现 routes.py √
 5. 实现 routes_todo.py √
-6. 实现 todo.py √ 7. 实现 templates 里的 html 文件 √
+6. 实现 todo.py √
+7. 实现 templates 里的 html 文件 √
 8. 小调试 √
 
 #### 存在的问题:
 1. 用户登录后,登录框应该隐藏掉
 2. 用户登录后,注册框应该隐藏掉
-3. server.py 306行 读取文件, 需要改为无限循环,从而获取全部的数据
+3. server.py 的 306 行,读取文件,需要改为无限循环,从而获取全部的数据
 4. 调试中,发现 Chrome 突然抽风,输入用户名和密码后点击登录会直接报错(相当于发送了空的 POST 请求),改为 Firefox 后没有发现异常,后来再使用 Chrome 时,一切正常, 需要关注一下

@@ -44,6 +44,26 @@ class Model(object):
         http://blog.csdn.net/a447685024/article/details/52424481
         http://www.cnblogs.com/hopeworld/archive/2011/08/16/2140145.html
 
+    # 瓜的解释
+    # @classmethod
+    # 生成对象的东西都必然是类方法,第一个参数是类,不需要实例也可以调用
+    #
+    # Todo.all()
+    # Todo 是类名,
+    # all() 是一个类方法, 不需要任何实例就可以调用, 用来生成实例
+    # Todo 当作 class 函数传入了
+    # 相当于你调用了 Todo.all(Todo)
+    #
+    # 在 def save(self) 中
+    #     models = self.all()
+    #            = self.__class__.all()
+    #     实例也可以调用类方法
+    #
+    # 实例方法: 只能是实例才能调用
+    #
+    # 静态方法:   没有第一个参数,和类是没有联系的(谁定义了这个类,谁就可以用这个静态方法)
+    #             为了好看,可以写在类里面,此时必须通过类来调用
+
     # # get_no_of_instances() 这个方法既可以在类(ik1)中运行,也可以在实例中(Kls)运行
     # def get_no_of_instances(cls_obj):
     #     # cls_obj 是 <class '__main__.Kls'>
@@ -118,12 +138,12 @@ class Model(object):
     #     @staticmethod  # staticmethod的修饰符
     #     def static_method(arg1, arg2):
     #         pass
-    #
+
     # Kls.printd()
     # TypeError: printd() missing 1 required positional argument: 'self'
     # 类方法的第一个参数cls，而实例方法的第一个参数是self，表示该类的一个实例。
     # 对于classmethod的参数，需要隐式地传递类名，而staticmethod参数中则不需要传递类名，其实这就是二者最大的区别。
-    """
+"""
 
     # db_path 方法返回调用该方法的类的 txt 文件路径
     @classmethod
@@ -206,12 +226,16 @@ class Model(object):
 
         a = A()
         print(a) 调用的是 a 的 __str__ 方法,给用户看的
-        如果在python解释器里直接敲a后回车，调用的是a.__repr__()方法,给机器看的
+        如果在 python 解释器里直接敲a后回车，调用的是 a.__repr__() ,给机器看的
         """
         classname = self.__class__.__name__
+        log('classname', classname)
         # todo 列表推倒有点没搞懂
         properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
+        log('properties', properties)
         s = '\n'.join(properties)
+        log('s', s)
+        log('最终结果:', '<\nclassname:{}\n properties:{}>\n'.format(classname, s))
         return '<\nclassname:{}\n properties:{}>\n'.format(classname, s)
 
     # 保存数据( User)
@@ -243,6 +267,7 @@ class Model(object):
         l = [m.__dict__ for m in models]
         path = self.db_path()
         save(l, path)
+        log('l, path', l, path)
 
     def saveMessage(self):
         models = self.all()
@@ -309,11 +334,11 @@ class User(Model):
         self.id = form.get('id', None)
         if self.id is not None:
             self.id = int(self.id)
-        self.username = form.get('username', '')
-        self.password = form.get('password', '')
         self.role = form.get('role', 10)
         if self.role is not None:
             self.role = int(self.role)
+        self.username = form.get('username', '')
+        self.password = form.get('password', '')
 
     # 登陆检验函数
     def validate_login(self):
@@ -356,15 +381,6 @@ class Message(Model):
         self.time = form.get('time')
         self.message_id = form.get('message_id')
 
-    # 重写了 __repr__ ,让 log 出来的信息更加可读
-    def __repr__(self):
-        classname = self.__class__.__name__
-        time = self.time
-        # todo 列表推倒有点没搞懂
-        properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
-        s = '\n'.join(properties)
-        return '<\nclassname:{}\n time:{} \n {}>\n'.format(classname, time, s)
-
 
 # 测试
 def test1():
@@ -374,18 +390,12 @@ def test1():
         password='gua',
     )
     u = User(form)
+    log(u)
     u.save()
-
-    # 测试 Message 数据
-    form = dict(
-        author='gua',
-        message='gua',
-    )
-    m = Message(form)
-    m.save()
 
 
 def test2():
+    # 测试 Message 数据
     # 测试 Message 数据
     form = dict(
         author='gua',
@@ -397,4 +407,4 @@ def test2():
 
 if __name__ == '__main__':
     test1()
-    test2()
+    # test2()
