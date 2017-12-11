@@ -21,11 +21,17 @@
 </form>
 <a href="/todo">进入 todo 页面</a>
 <a href="/">返回首页</a>
-<!--<form action="/messages" method="get">-->
-    <!--<p>评论内容</p>-->
-    <!--<textarea name="message" rows="8" cols="40"></textarea>-->
-    <!--<button type="submit">GET 提交</button>-->
-<!--</form>-->
-{{messages}}
+
+<!-- 循环加对象/字典访问 -->
+<div class="user-container">
+    {% for m in messages %}
+    <div class="message-cell">
+        <span>message_id : {{ m.message_id }}</span>
+        <span>author : {{ m.author }}</span>
+        <span>message : {{ m.message }}</span>
+        <span>time : {{ m.time }}</span>
+    </div>
+    {% endfor %}
+</div>
 </body>
 </html>

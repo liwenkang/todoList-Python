@@ -1,8 +1,6 @@
-# routes.py
-
-
 # 引入 log 函数
 from utils import log
+from utils import templateM
 
 from utils import current_time
 
@@ -66,13 +64,6 @@ def current_role(request):
         return None
 
 
-# 根据名字读取 templates 文件夹里的网页文件并返回
-def template(name):
-    path = 'templates/' + name
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
-
-
 # 根据 headers(字典) 生成响应头
 def response_with_headers(headers, code=200):
     """
@@ -93,6 +84,7 @@ def response_with_headers(headers, code=200):
         header = 'HTTP/1.1 {} OK\r\n'.format(code)
     elif code == 302:
         header = 'HTTP/1.1 {} redirect\r\n'.format(code)
+
     kvs = headers.items()
     items = []
     for k, v in kvs:
@@ -119,11 +111,13 @@ def redirect(url):
     302是一个浏览器的临时重定向
     """
     headers = {
+        'Content-Type': 'text/html',
         'Location': url
     }
     # 重新生成 HTTP 响应
     # 注意此次响应没有 HTTP body 部分
-    r = response_with_headers(headers, 302) + '\r\n'
+    header = response_with_headers(headers, 302)
+    r = header + '\r\n' + ''
     return r.encode('utf-8')
 
 
@@ -143,10 +137,9 @@ def route_static(request):
 
 # 加载主页(将 header + index.html 页面编码后返回)
 def route_index(request):
-    header = 'HTTP/1.1 210 OK\r\nContent-Type: text/html\r\n'
-    body = template('index.html')
     username = current_user(request)
-    body = body.replace('{{username}}', username)
+    header = 'HTTP/1.1 210 OK\r\nContent-Type: text/html\r\n'
+    body = templateM('index.html', username=username)
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
 
@@ -175,9 +168,7 @@ def route_login(request):
             result = '用户名或者密码错误'
     else:
         result = ''
-    body = template('login.html')
-    body = body.replace('{{result}}', result)
-    body = body.replace('{{username}}', username)
+    body = templateM('login.html', result=result, username=username)
     header = response_with_headers(headers)
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
@@ -189,12 +180,10 @@ def route_admin(request):
     if current_role(request) == 1:
         data = load('data/User.txt')
         # list 转换为 str
-        item = '<br>'.join([str(m) for m in data])
         headers = {
             'Content-Type': 'text/html'
         }
-        body = template('admin.html')
-        body = body.replace('{{result}}', item)
+        body = templateM('admin.html', users=data)
         header = response_with_headers(headers)
         r = header + '\r\n' + body
         return r.encode(encoding='utf-8')
@@ -205,27 +194,25 @@ def route_admin(request):
 # 加载注册页面(将 header + register.html 页面编码后返回)
 def route_register(request):
     header = 'HTTP/1.1 210 OK\r\nContent-Type: text/html\r\n'
-    body = template('register.html')
     # 验证 POST 请求
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
         if u.validate_register() == '该用户名已存在':
             result = '注册失败: 该用户名已存在'
-            body = body.replace('{{result}}', result)
+            body = templateM('register.html', result=result)
         elif u.validate_register() == True:
             u.save()
             result = '注册成功: 您的账号为 {}'.format(u.username)
             # result = '注册成功<br> <pre>{} {}</pre>'.format(User.all())
-            body = body.replace('{{result}}',
-                                result + '<p><a href="/todo">进入 TODO 页面</a></p><p><a href="/messages">进入 Message 页面</a></p>')
+            body = templateM('register.html',
+                             result=result + '<p><a href="/todo">进入 TODO 页面</a></p><p><a href="/messages">进入 Message 页面</a></p>')
         else:
             result = '注册失败: 用户名和密码均必须以字母开头,且只能包含英文字符,数字和下划线,长度在6--18之间'
-            body = body.replace('{{result}}', result)
+            body = templateM('register.html', result=result)
     else:
         # 打开网页时自动的 GET 请求
-        result = ''
-        body = body.replace('{{result}}', result)
+        body = templateM('register.html', result='')
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
 
@@ -236,8 +223,8 @@ def route_message(request):
     # 如果此时用户未登录,重定向到 '/'
     if username == '游客':
         return redirect('/login')
+
     # 判断 POST 请求
-    body = template('message.html')
     if request.method == 'POST':
         # 先加载原有数据
         form = request.form()
@@ -247,8 +234,7 @@ def route_message(request):
         item = t.saveMessage()
         save(item, 'data/Message.txt')
         # 将 list 转换成 str
-        msgs = '<br>'.join([str(m) for m in item])
-        body = body.replace('{{messages}}', msgs)
+        body = templateM('message.html', messages=item)
     elif request.method == 'GET':
         # 也就是说,当我第一次访问 http://localhost:3000/messages 时,会先发送 GET 请求
         # 定向到了新的 url
@@ -258,9 +244,7 @@ def route_message(request):
             # 提取出现有的 Message.
             path = 'data/Message.txt'
             data = load(path)
-            # 将 list 转换成 str
-            data = '<br>'.join([str(m) for m in data])
-            body = body.replace('{{messages}}', data)
+            body = templateM('message.html', messages=data)
     header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')

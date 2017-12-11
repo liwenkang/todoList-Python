@@ -16,6 +16,18 @@
     <input type="text" name="password" placeholder="请输入密码">
     <button type="submit">提交修改</button>
 </form>
-<p>{{result}}</p>
+
+<!-- 循环加对象/字典访问 -->
+<div class="user-container">
+    {% for u in users %}
+    <div class="user-cell">
+        <span>id : {{ u.id }}</span>
+        <span>role : {{ u.role }}</span>
+        <span>username: {{ u.username }}</span>
+        <span>password: {{ u.password }}</span>
+    </div>
+    {% endfor %}
+</div>
+
 </body>
 </html>

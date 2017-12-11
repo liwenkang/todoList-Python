@@ -3,7 +3,10 @@
 1. 路由的实现
 
 2. 利用 302 状态码实现重定向
-
+```
+浏览器在收到 302 响应的时候,会自动在 HTTP header 里面找 Location 字段,并获取一个 url 然后自动请求新的 url 301是一个浏览器的永久重定向,浏览器会记住它
+302是一个浏览器的临时重定向
+```
 3. POST 和 GET 的区别
 	GET一般用于获取 / 查询资源信息，而POST一般用于更新资源信息 请求方法为 GET 从指定的服务器中获取数据,查询字符串（键值对）被附加在URL地址后面一起发送到服务器 header 
 ```
@@ -102,6 +105,30 @@ print(a) //"this is A class"  调用的是 a 的 __str__ 方法,给用户看的
 
 2. todo 列表推导 ?  
 ```
+headers = {
+	'age': 20,
+	'name': 'liwenkang' 
+}
+
+kvs = headers.items()
+items = []
+for k, v in kvs:
+  item = '{}: {}\r\n'.format(k, v)
+    items.append(item)
+header += ''.join(items)
+
+等价于下面
+
+header += ''.join(['{}: {}\r\n'.format(k, v) for k, v in headers.items()])
+
+header = "
+	age: 20
+	name: liwenkang
+"
+
+
+# 另外的探索 ==>
+
 from utils import test_log as log
 
 data = [
@@ -225,5 +252,18 @@ Todo.all() Todo 是类名, all() 是一个类方法, 不需要任何实例就可
 	http://blog.csdn.net/a447685024/article/details/52424481 		
 	http://www.cnblogs.com/hopeworld/archive/2011/08/16/2140145.html   
 
+
+7. *args 和**kwargs ?
+
+```
+当函数的参数不确定时，可以使用*args 和**kwargs 
+*args 没有 key 值，**kwargs 有 key 值 
+
+*args 表示多个剩余参数()，它是一个tuple 
+**kwargs表示关键字参数，它是一个dict 
+
+同时使用*args和**kwargs时，必须*args 在**kwargs前 
+在打 log 的时候,一定要注意最后才打"字典"
+```
 
 

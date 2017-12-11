@@ -10,29 +10,5 @@
     "role": 10,
     "username": "liwenkang",
     "password": "liwenkang"
-  },
-  {
-    "id": 3,
-    "role": 10,
-    "username": "gua",
-    "password": "gua"
-  },
-  {
-    "id": 4,
-    "role": 10,
-    "username": "gua",
-    "password": "gua"
-  },
-  {
-    "id": 5,
-    "role": 10,
-    "username": "gua",
-    "password": "gua"
-  },
-  {
-    "id": 6,
-    "role": 10,
-    "username": "gua",
-    "password": "gua"
   }
 ]
