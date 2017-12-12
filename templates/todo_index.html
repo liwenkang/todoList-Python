@@ -16,7 +16,9 @@
 
 {% for t in todos %}
 <div>
-    {{ t.id }} : {{ t.title }}  {{ t.created_time }}  {{ t.updated_time }}
+    {{ t.id }} : {{ t.title }}
+    <!--<span>创建时间{{ t.created_time }}</span>-->
+    <!--<span>更新时间{{ t.updated_time }}</span>-->
     <a href="/todo/delete?id={{t.id}}">删除</a>
     <a href="/todo/edit?id={{t.id}}">编辑</a>
 </div>

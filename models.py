@@ -17,10 +17,6 @@ def save(data, path):
     # json.dumps 是将 dict 转化成 str 格式
     # ensure_ascii = False 是为了让它正确显示中文
     s = json.dumps(data, indent=2, ensure_ascii=False)
-    # Python 的文件操作
-    # w+ 可读可写，如果文件存在，则覆盖整个文件，不存在则创建
-    # 参考
-    # http://www.cnblogs.com/yangshl/p/6285942.html
     with open(path, 'w+', encoding='utf-8') as f:
         f.write(s)
 
@@ -33,117 +29,28 @@ def load(path):
         return json.loads(s)
 
 
-# 定义 Model
+# 加密数据
+def out_salted_password(password, salt='5&4*$%":<>|dfewd5'):
+    import hashlib
+    def sha256(ascii_str):
+        # 用 ascii 编码转换成 bytes 对象
+        obj = ascii_str.encode('ascii')
+        return hashlib.sha256(obj).hexdigest()
+    hash1 = sha256(password)
+    hash2 = sha256(hash1 + salt)
+    return hash2
+
+
+# Model 是一个 ORM（object relation mapper）对象关系映射
+# 好处就是不需要关心存储数据的细节，直接使用即可
 class Model(object):
     """
-    Model 是所有 model 的基类,
-
-    @classmethod 表示接下来的是一个类方法
-
-    # python 类的实例方法，静态方法，类方法辨析和实例讲解 可以参考
-        http://blog.csdn.net/a447685024/article/details/52424481
-        http://www.cnblogs.com/hopeworld/archive/2011/08/16/2140145.html
-
-    # 瓜的解释
-    # @classmethod
-    # 生成对象的东西都必然是类方法,第一个参数是类,不需要实例也可以调用
-    #
-    # Todo.all()
-    # Todo 是类名,
-    # all() 是一个类方法, 不需要任何实例就可以调用, 用来生成实例
-    # Todo 当作 class 函数传入了
-    # 相当于你调用了 Todo.all(Todo)
-    #
-    # 在 def save(self) 中
-    #     models = self.all()
-    #            = self.__class__.all()
-    #     实例也可以调用类方法
-    #
-    # 实例方法: 只能是实例才能调用
-    #
-    # 静态方法:   没有第一个参数,和类是没有联系的(谁定义了这个类,谁就可以用这个静态方法)
-    #             为了好看,可以写在类里面,此时必须通过类来调用
-
-    # # get_no_of_instances() 这个方法既可以在类(ik1)中运行,也可以在实例中(Kls)运行
-    # def get_no_of_instances(cls_obj):
-    #     # cls_obj 是 <class '__main__.Kls'>
-    #     return cls_obj.no_inst
-    #
-    #
-    # class Kls(object):
-    #     no_inst = 0
-    #
-    #     def __init__(self):
-    #         # self 是 <__main__.Kls object at 0x000001F533D7DBA8>
-    #         # Kls 是 <class '__main__.Kls'>
-    #         Kls.no_inst = Kls.no_inst + 1
-    #
-    #
-    # ik1 = Kls()
-    # ik2 = Kls()
-    # print(get_no_of_instances(ik1))       2
-    # print(get_no_of_instances(ik2))       2
-    # print(get_no_of_instances(Kls))       2
-
-    # 我们要写一个只在类中运行而不在实例中运行的方法. 如果我们想让方法不在实例中运行，可以这么做:
-    # def iget_no_of_instance(ins_obj):
-    #     return ins_obj.__class__.no_inst
-    #
-    #
-    # class Kls(object):
-    #     no_inst = 0
-    #
-    #     def __init__(self):
-    #         Kls.no_inst = Kls.no_inst + 1
-    #
-    #
-    # ik1 = Kls()
-    # ik2 = Kls()
-    # # print(iget_no_of_instance(ik1))       2
-    # # print(iget_no_of_instance(ik2))       2
-    # # 下面这句会报错
-    # # print(iget_no_of_instance(Kls))
-    # # 也就是说,这样写的话, iget_no_of_instance() 只可以在类中运行(ik1),不能在实例中运行(Kls)
-    # # 单纯把 def iget_no_of_instance(ins_obj) 写在 Kls 里面也不能解决问题
-
-    # @classmethod 是为了使得 iget_no_of_instance() 既能在类中运行(ik1),也能在实例中运行(Kls)
-    # class Kls(object):
-    #     no_inst = 0
-    #
-    #     def __init__(self):
-    #         Kls.no_inst = Kls.no_inst + 1
-    #
-    #     @classmethod
-    #     def iget_no_of_instance(ins_obj):
-    #         return ins_obj.no_inst
-    #
-    #
-    # ik1 = Kls()
-    # ik2 = Kls()
-    # print(ik1.iget_no_of_instance())      2
-    # print(ik2.iget_no_of_instance())      2
-    # print(Kls.iget_no_of_instance())      2
-
-    # class Kls(object):
-    #     def __init__(self, data):
-    #         self.data = data
-    #
-    #     def printd(self):
-    #         print('self.data', self.data)
-    #
-    #     @classmethod  # classmethod的修饰符
-    #     def class_method(cls, arg1, arg2):
-    #         pass
-    #
-    #     @staticmethod  # staticmethod的修饰符
-    #     def static_method(arg1, arg2):
-    #         pass
-
-    # Kls.printd()
-    # TypeError: printd() missing 1 required positional argument: 'self'
-    # 类方法的第一个参数cls，而实例方法的第一个参数是self，表示该类的一个实例。
-    # 对于classmethod的参数，需要隐式地传递类名，而staticmethod参数中则不需要传递类名，其实这就是二者最大的区别。
-"""
+    Model 是所有 model 的基类
+    @classmethod 是一个套路用法
+    例如
+    user = User()
+    user.db_path() 返回 User.txt
+    """
 
     # db_path 方法返回调用该方法的类的 txt 文件路径
     @classmethod
@@ -169,7 +76,7 @@ class Model(object):
         ms = [cls.new(m) for m in models]
         return ms
 
-    # todo 什么鬼?
+    # todo 这里用不用 new  好像没差别 ?
     @classmethod
     def new(cls, form):
         m = cls(form)
@@ -179,7 +86,6 @@ class Model(object):
     @classmethod
     def find_by(cls, **kwargs):
         # u = User.find_by(username='gua')
-
         k, v = '', ''
         for key, value in kwargs.items():
             k, v = key, value
@@ -208,6 +114,12 @@ class Model(object):
                 data.append(m)
         return data
 
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.find_by(id=id)
+
+    # 这里还可以写一个 delete 方法, 代替 remove
+
     # 重写了 __repr__ ,让 log 出来的信息更加可读
     @classmethod
     def __repr__(self):
@@ -229,16 +141,11 @@ class Model(object):
         如果在 python 解释器里直接敲a后回车，调用的是 a.__repr__() ,给机器看的
         """
         classname = self.__class__.__name__
-        log('classname', classname)
-        # todo 列表推倒有点没搞懂
         properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
-        log('properties', properties)
         s = '\n'.join(properties)
-        log('s', s)
-        log('最终结果:', '<\nclassname:{}\n properties:{}>\n'.format(classname, s))
         return '<\nclassname:{}\n properties:{}>\n'.format(classname, s)
 
-    # 保存数据( User)
+    # 保存数据 (User)
     def save(self):
         models = self.all()
         first_index = 1
@@ -269,6 +176,7 @@ class Model(object):
         save(l, path)
         log('l, path', l, path)
 
+    # 保存数据 (Message)
     def saveMessage(self):
         models = self.all()
         first_index = 1
@@ -305,13 +213,6 @@ class Model(object):
             # id 属性存在
             # 默认找不到 index = -1
             index = -1
-            """
-            enumerate用法如下:
-            for i, m in enumerate(models):
-                log('i', i,'index')
-                log('m', m,'key')
-                log('models.get(m)', models.get(m),'value')
-            """
             for i, m in enumerate(models):
                 if m.id == self.id:
                     # 如果遍历得到的 id 等于 自己的 id,说明找到了
@@ -340,22 +241,31 @@ class User(Model):
         self.username = form.get('username', '')
         self.password = form.get('password', '')
 
+    # 用户密码加密(使用了 hash 加密)
+    def salted_password(self, password, salt='5&4*$%":<>|dfewd5'):
+        import hashlib
+        def sha256(ascii_str):
+            # 用 ascii 编码转换成 bytes 对象
+            obj = ascii_str.encode('ascii')
+            return hashlib.sha256(obj).hexdigest()
+
+        hash1 = sha256(password)
+        hash2 = sha256(hash1 + salt)
+        return hash2
+
     # 登陆检验函数
     def validate_login(self):
         # 先查询是否有当前用户
         u = User.find_by(username=self.username)
         if u is None:
-            # 提醒用户用户名或者密码错误
-            log('validate_login 提醒用户用户名或者密码错误')
+            # 提醒用户用户名错误
             return False
         else:
-            if u.password == self.password:
-                log('validate_login  ok')
+            if u.password == self.salted_password(self.password):
                 return True
             else:
-                log('validate_login  提醒用户用户名或者密码错误')
+                # 提醒用户密码错误
                 return False
-                # 提醒用户用户名或者密码错误
 
     # 注册检验函数
     def validate_register(self):
@@ -367,6 +277,9 @@ class User(Model):
         nameMatch = pattern.search(self.username)
         passwordMatch = pattern.search(self.password)
         if nameMatch and passwordMatch:
+            # 执行加密
+            pwd = self.password
+            self.password = self.salted_password(pwd)
             return True
         else:
             return False
@@ -382,6 +295,21 @@ class Message(Model):
         self.message_id = form.get('message_id')
 
 
+# 定义 Todo
+class Todo(Model):
+    def __init__(self, form):
+        # 代办事件编号
+        self.id = form.get('id', None)
+        # 代办事件名称
+        self.title = form.get('title', '')
+        # user_id 表明了代办事项的拥有者
+        self.user_id = form.get('user_id', '')
+        # 新增时间
+        self.created_time = form.get('created_time', '出错了')
+        # 刷新修改时间
+        self.updated_time = form.get('updated_time', '未作修改')
+
+
 # 测试
 def test1():
     # 测试 User 数据
@@ -390,7 +318,6 @@ def test1():
         password='gua',
     )
     u = User(form)
-    log(u)
     u.save()
 
 

@@ -1,19 +1,16 @@
-# 引入 log 函数
-from utils import log
-from utils import templateM
-
-from utils import current_time
-
 # 引入生成随机数的 random
 import random
 
-# 引入 save 函数
+# 引入 log 函数
+from utils import log
+from utils import templateM
+from utils import current_time
+
 from models import save
 from models import load
+from models import out_salted_password
 
-# 引入 Message 从 models 里面
 from models import Message
-# 引入 User 从 models 里面
 from models import User
 
 # session 可以在服务器端实现用户账户过期功能
@@ -155,6 +152,9 @@ def route_login(request):
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
+
+        # u = User(form)
+
         if u.validate_login():
             # 为了防止用户伪造 cookie 信息,所以设置一个随机字符串来加密用户名
             # 首先生成一个 16 位的随机字符串
@@ -198,15 +198,16 @@ def route_register(request):
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
-        if u.validate_register() == '该用户名已存在':
+        flag = u.validate_register()
+        if flag == '该用户名已存在':
             result = '注册失败: 该用户名已存在'
             body = templateM('register.html', result=result)
-        elif u.validate_register() == True:
+        elif flag == True:
             u.save()
             result = '注册成功: 您的账号为 {}'.format(u.username)
             # result = '注册成功<br> <pre>{} {}</pre>'.format(User.all())
             body = templateM('register.html',
-                             result=result + '<p><a href="/todo">进入 TODO 页面</a></p><p><a href="/messages">进入 Message 页面</a></p>')
+                             result=result + '<p><a href="/login">进入登录页面</a></p>')
         else:
             result = '注册失败: 用户名和密码均必须以字母开头,且只能包含英文字符,数字和下划线,长度在6--18之间'
             body = templateM('register.html', result=result)
@@ -254,16 +255,17 @@ def route_message(request):
 def route_update(request):
     form = request.form()
     if request.method == 'POST':
-        oldid = form.get('id')
+        oldId = form.get('id')
         new_password = form.get('password')
-        u = User.find_by(id=int(oldid))
-        u.password = new_password
+        u = User.find_by(id=int(oldId))
+        # 需要加密
+        u.password = out_salted_password(new_password)
         u.save()
         return redirect('/admin/users')
 
 
 # 路由字典,实现主页显示,用户注册,登陆,留言
-route_dict = {
+index_routes = {
     '/': route_index,
     '/login': route_login,
     '/register': route_register,

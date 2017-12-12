@@ -2,13 +2,13 @@
   {
     "id": 1,
     "role": 1,
-    "username": "gua",
-    "password": "gua"
+    "username": "liwenkang",
+    "password": "029d6501bfe9febb814924e291e58a47e503a6290dfa3d3a4b6153238e3ce715"
   },
   {
     "id": 2,
     "role": 10,
-    "username": "liwenkang",
-    "password": "liwenkang"
+    "username": "guagua",
+    "password": "7faee1d4655bc5a5dff6832d6dfb9f30b511d5af9282e791c0023c6ae0bea4ef"
   }
 ]

@@ -5,19 +5,20 @@ from utils import current_time
 from utils import templateM
 
 # 引入 Todo
-from todo import Todo
+from models import Todo
 
 # 引入 User
 from models import User
 
 # 引入 current_user 函数
-from routes import current_user
+from routes.routes_index import current_user
 
 # 引入 response_with_headers 函数
-from routes import response_with_headers
+from routes.routes_index import response_with_headers
 
 # 引入 redirect 函数
-from routes import redirect
+from routes.routes_index import redirect
+
 
 # 验证是否登陆
 def login_required(route_function):
@@ -126,7 +127,7 @@ def delete_todo(request):
 # 实现待办事项页面的添加,编辑.删除事件
 # key 是路由(路由就是 path)
 # value 是路由处理函数(就是响应)
-route_dict = {
+todo_routes = {
     # GET 请求, 显示页面
     '/todo': index,
     '/todo/edit': login_required(edit),
