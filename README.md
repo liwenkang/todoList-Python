@@ -53,7 +53,7 @@
 ├─server.py                 // 建立一个 server.py
 ├─todo.py                   // 包含了 Todo Model, 用于处理数据
 ├─utils.py                  // 自定义的工具函数
-└─summarize.md				// 知识点总结
+└─summarize.md              // 知识点总结
 </pre>
 
 #### 主要涉及的知识点见 summarize.md
